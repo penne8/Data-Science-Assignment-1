@@ -10,7 +10,7 @@ def least_square(A, B):
     return x
 
 def minimal_loss_vector(A, x, B):
-    curr_minimal_loss_vector =  (A @ x) - B
+    curr_minimal_loss_vector = (A @ x) - B
     return curr_minimal_loss_vector
 
 def minimal_loss(r):
