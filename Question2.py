@@ -13,7 +13,6 @@ def minimal_loss_vector(A, x, B):
     curr_minimal_loss_vector =  (A @ x) - B
     return curr_minimal_loss_vector
 
-
 def minimal_loss(r):
     return np.transpose(r) @ r
 
