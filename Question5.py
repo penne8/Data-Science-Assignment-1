@@ -8,6 +8,7 @@ date = 1
 newCases = 2
 population = 3
 density = 4
+minimal_proximity = 1.00000000e-03
 
 def make_matrix(data_name, data_per_country_size, countries_size):
     countries_data = np.zeros((data_per_country_size, countries_size))
@@ -66,6 +67,21 @@ def minimize_by_average_rows(matrix, average_by):
 
     return average_matrix
 
+def minimal_loss_vector(A, x, B):
+    curr_minimal_loss_vector = (A @ x) - B
+    return curr_minimal_loss_vector
+
+def minimal_loss(r):
+    return np.transpose(r) @ r
+
+def sanity_check(A, r):
+    numerical_zero = np.transpose(A) @ r
+    negligible = True
+    for value in numerical_zero:
+        if value > minimal_proximity:
+            negligible = False
+    return negligible
+
 def main():
     # Organize Country Data
     countries_data = make_matrix('CountriesData.csv', 238, 7)
@@ -81,6 +97,11 @@ def main():
     # Finding LS solution
     least_square_solution = least_square(base_countries_data, base_France_data)
     print("\nthis is the simple minimal LS solution: \n", least_square_solution)
+
+    # find minimal loss and validate
+    curr_minimal_loss_vector = minimal_loss_vector(base_countries_data, least_square_solution, base_France_data)
+    print("the minimal loss (error) is: ", minimal_loss(curr_minimal_loss_vector))
+    print("sanity check passed: ", sanity_check(base_countries_data, curr_minimal_loss_vector))
 
     # we noticed some countries are not correlated to France, therefore we will remove them:
     ignore_countries = [6, 4, 2]
@@ -110,6 +131,11 @@ def main():
     least_square_solution = least_square(base_countries_data, base_France_data)
     print("\nthis is the minimal LS solution after average: \n", least_square_solution)
 
+    # find minimal loss and validate
+    curr_minimal_loss_vector = minimal_loss_vector(base_countries_data, least_square_solution, base_France_data)
+    print("the minimal loss (error) is: ", minimal_loss(curr_minimal_loss_vector))
+    print("sanity check passed: ", sanity_check(base_countries_data, curr_minimal_loss_vector))
+
     # evaluate Future data
     validation_France_excepted = validation_countries_data @ least_square_solution
     plt.plot(validation_France_excepted)
@@ -117,7 +143,10 @@ def main():
     plt.ylabel('New Cases')
     plt.show()
 
-#     TODO: measure the error
+    plt.plot(validation_France_data)
+    plt.xlabel('days')
+    plt.ylabel('New Cases')
+    plt.show()
 
 if __name__ == '__main__':
     main()
